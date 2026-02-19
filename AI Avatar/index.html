@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anam Avatar Example</title>
+</head>
+<body>
+  <h1>AI Avatar Talking Example</h1>
+
+  <video id="anam-video" autoplay playsinline></video>
+  <audio id="anam-audio" autoplay></audio>
+
+  <textarea id="text" placeholder="Enter text to speak" rows="4" cols="50"></textarea><br>
+  <button onclick="sendText()">Speak</button>
+
+  <script type="module">
+    import { createClient } from "https://unpkg.com/@anam-ai/js-sdk@latest/dist/umd/anam.js";
+
+    let anamClient;
+    let sessionToken;
+
+    async function initAvatar() {
+      // Get session token from your Python backend
+      const response = await fetch("/api/session_token", { method: "POST" });
+      const data = await response.json();
+      sessionToken = data.sessionToken;
+
+      // Create the Anam client
+      anamClient = createClient(sessionToken);
+
+      // Stream to video + audio DOM elements
+      await anamClient.streamToVideoAndAudioElements(
+        "anam-video",
+        "anam-audio"
+      );
+
+      console.log("Avatar connected!");
+    }
+
+    async function sendText() {
+      const text = document.getElementById("text").value;
+      if (anamClient && text) {
+        anamClient.talk(text);  // this makes the avatar speak
+      }
+    }
+
+    initAvatar();
+  </script>
+</body>
+</html>
